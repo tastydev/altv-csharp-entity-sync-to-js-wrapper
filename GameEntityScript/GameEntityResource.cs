@@ -13,7 +13,7 @@ namespace GameEntityScript
         {
             AltEntitySync.Init(
                 1,
-                (threaId) => 100,
+                (threadId) => 100,
                 (threadId) => true,
                 (threadCount, repository) => new ServerEventNetworkLayer(threadCount, repository),
                 (entity, threadCount) => (entity.Id % threadCount),
@@ -75,7 +75,7 @@ namespace GameEntityScript
 
             if (entity == null)
             {
-                Console.WriteLine("[WARN] GameEntityResource::SetGameEntityPosition was called with invalid entity!");
+                Console.WriteLine("[WARN] EntitySyncWrapper SetGameEntityPosition was called with invalid entity!");
                 return;
             }
 
@@ -88,7 +88,7 @@ namespace GameEntityScript
 
             if (entity == null)
             {
-                Console.WriteLine("[WARN] GameEntityResource::GetGameEntityPosition was called with invalid entity!");
+                Console.WriteLine("[WARN] EntitySyncWrapper GetGameEntityPosition was called with invalid entity!");
                 return new Vector3();
             }
 
@@ -101,7 +101,7 @@ namespace GameEntityScript
 
             if (entity == null)
             {
-                Console.WriteLine("[WARN] GameEntityResource::GetGameEntityRange was called with invalid entity!");
+                Console.WriteLine("[WARN] EntitySyncWrapper GetGameEntityRange was called with invalid entity!");
                 return 0;
             }
 
@@ -114,7 +114,7 @@ namespace GameEntityScript
 
             if (entity == null)
             {
-                Console.WriteLine("[WARN] GameEntityResource::SetGameEntityDimension was called with invalid entity!");
+                Console.WriteLine("[WARN] EntitySyncWrapper SetGameEntityDimension was called with invalid entity!");
                 return;
             }
 
@@ -127,7 +127,7 @@ namespace GameEntityScript
 
             if (entity == null)
             {
-                Console.WriteLine("[WARN] GameEntityResource::GetGameEntityDimension was called with invalid entity!");
+                Console.WriteLine("[WARN] EntitySyncWrapper GetGameEntityDimension was called with invalid entity!");
                 return 0;
             }
 
@@ -140,7 +140,7 @@ namespace GameEntityScript
 
             if(entity == null)
             {
-                Console.WriteLine("[WARN] GameEntityResource::SetGameEntityData was called with invalid entity!");
+                Console.WriteLine("[WARN] EntitySyncWrapper SetGameEntityData was called with invalid entity!");
                 return;
             }
 
@@ -157,7 +157,7 @@ namespace GameEntityScript
 
             if (entity == null)
             {
-                Console.WriteLine("[WARN] GameEntityResource::GetGameEntityData was called with invalid entity!");
+                Console.WriteLine("[WARN] EntitySyncWrapper GetGameEntityData was called with invalid entity!");
                 return null;
             }
 
@@ -165,7 +165,7 @@ namespace GameEntityScript
 
             if(!entity.TryGetData(key, out result))
             {
-                Console.WriteLine("[WARN] GameEntityResource::GetGameEntityData was called with invalid data key!"); ;
+                Console.WriteLine("[WARN] EntitySyncWrapper GetGameEntityData was called with invalid data key!");
                 return null;
             }
 
@@ -181,11 +181,13 @@ namespace GameEntityScript
         {
             this.InitEntitySync();
             this.RegisterExports();
+            Console.WriteLine("[INFO] EntitySyncWrapper registered!");
         }
 
         public override void OnStop()
         {
             AltEntitySync.Stop();
+            Console.WriteLine("[INFO] EntitySyncWrapper stopped!");
         }
     }
 }
