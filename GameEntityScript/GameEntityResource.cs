@@ -51,7 +51,6 @@ namespace GameEntityScript
         private ulong CreateGameEntity(long type, Vector3 position, int dimension, int range)
         {
             IEntity entity = AltEntitySync.CreateEntity((ulong) type, position, dimension, (uint) range);
-
             return entity.Id;
         }
 
