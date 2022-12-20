@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using AltV.Net;
 using AltV.Net.EntitySync;
@@ -7,25 +8,44 @@ using AltV.Net.EntitySync.SpatialPartitions;
 
 namespace GameEntityScript
 {
-	public class GameEntityResource : Resource 
+    public enum EntityType : ulong
+    {
+        Object = 0,
+        Ped = 1,
+        TextLabel = 2,
+        Marker = 3,
+    }
+    public class GameEntityResource : Resource 
 	{
+        
         private void InitEntitySync()
         {
             AltEntitySync.Init(
-                1,
+                4,
                 (threadId) => 100,
-                (threadId) => true,
+                (threadId) => false, //netOwner calculations disabled (no need currently)
                 (threadCount, repository) => new ServerEventNetworkLayer(threadCount, repository),
-                (entity, threadCount) => (entity.Id % threadCount),
-                (entityId, entityType, threadCount) => (entityId % threadCount),
-                (threadId) => new LimitedGrid3(50_000, 50_000, 100, 10_000, 10_000, 300),
+                (entity, threadCount) => entity.Type,
+                (entityId, entityType, threadCount) => entityType,
+                (threadId) =>
+                {
+                    if (threadId == (ulong)EntityType.Object) // objects
+                        return new LimitedGrid3(50_000, 50_000, 100, 10_000, 10_000, 350);
+                    if (threadId == (ulong)EntityType.Ped) // peds
+                        return new LimitedGrid3(50_000, 50_000, 100, 10_000, 10_000, 125);
+                    if (threadId == (ulong)EntityType.TextLabel) // text labels
+                        return new LimitedGrid3(50_000, 50_000, 100, 10_000, 10_000, 125);
+                    if (threadId == (ulong)EntityType.Marker) // marker
+                        return new LimitedGrid3(50_000, 50_000, 100, 10_000, 10_000, 125);
+                    return null;
+                },
                 new IdProvider()
             );
         }
 
         private void RegisterExports()
         {
-            Alt.Export("createGameEntity", new Func<long, Vector3, int, int, ulong>(this.CreateGameEntity));
+            Alt.Export("createGameEntity", new Func<long, Vector3, int, int, IDictionary<string, object>, ulong>(this.CreateGameEntity));
             Alt.Export("removeGameEntity", new Action<long, long>(this.RemoveGameEntity));
             Alt.Export("doesGameEntityExist", new Func<long, long, bool>(this.DoesGameEntityExist));
             Alt.Export("setGameEntityPosition", new Action<long, long, Vector3>(this.SetGameEntityPosition));
@@ -47,10 +67,10 @@ namespace GameEntityScript
 
             return entity;
         }
-
-        private ulong CreateGameEntity(long type, Vector3 position, int dimension, int range)
+       
+        private ulong CreateGameEntity(long type, Vector3 position, int dimension, int range, IDictionary<string, object> data)
         {
-            IEntity entity = AltEntitySync.CreateEntity((ulong) type, position, dimension, (uint) range);
+            IEntity entity = AltEntitySync.CreateEntity((ulong) type, position, dimension, (uint) range, data);
             return entity.Id;
         }
 
