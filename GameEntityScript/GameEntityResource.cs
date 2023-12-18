@@ -47,6 +47,7 @@ namespace GameEntityScript
         {
             Alt.Export("createGameEntity", new Func<long, Vector3, int, int, IDictionary<string, object>, ulong>(this.CreateGameEntity));
             Alt.Export("removeGameEntity", new Action<long, long>(this.RemoveGameEntity));
+            Alt.Export("removeAllGameEntities", new Action(this.RemoveAllGameEntities));
             Alt.Export("doesGameEntityExist", new Func<long, long, bool>(this.DoesGameEntityExist));
             Alt.Export("setGameEntityPosition", new Action<long, long, Vector3>(this.SetGameEntityPosition));
             Alt.Export("getGameEntityPosition", new Func<long, long, Vector3>(this.GetGameEntityPosition));
@@ -79,6 +80,17 @@ namespace GameEntityScript
             IEntity entity = this.GetGameEntity(id, type);
 
             AltEntitySync.RemoveEntity(entity);
+        }
+
+        private void RemoveAllGameEntities()
+        {
+            IEnumerable<IEntity> entities = AltEntitySync.GetAllEntities();
+
+            foreach (IEntity entity in entities)
+            {
+               AltEntitySync.RemoveEntity(entity);
+            }
+              
         }
 
         private bool DoesGameEntityExist(long id, long type)
@@ -205,6 +217,7 @@ namespace GameEntityScript
 
         public override void OnStop()
         {
+            this.RemoveAllGameEntities();
             AltEntitySync.Stop();
             Console.WriteLine("[INFO] EntitySyncWrapper stopped!");
         }
